@@ -2,7 +2,10 @@
 # 
 # Classes generated from type clues.
 #
-# Author: David Beazley (@dabeaz). http://www.dabeaz.com
+# Author: David Beazley (@dabeaz). 
+#         http://www.dabeaz.com
+#
+# Copyright (C) 2018
 
 __all__ = ['Init', 'Repr', 'Equals']
 
@@ -12,7 +15,7 @@ def cluegen(func):
         exec(func(cls), locs)
         setattr(cls, func.__name__, locs[func.__name__])
         return getattr(cls, func.__name__).__get__(instance, cls)
-    return type('D', (), { '__get__': __get__})()
+    return type('D', (), dict(__get__=__get__))()
 
 class Init:
     @cluegen
@@ -49,18 +52,9 @@ if __name__ == '__main__':
     class Base(Init, Repr):
         pass
 
-    # Start defining class
+    # Start defining classes
     class Coordinates(Base):
         x: int
         y: int
 
-    class Stock(Base):
-        name: str
-        shares: int
-        price: float
-
-    class Vec3(Base):
-        x: float
-        y: float
-        z: float
 

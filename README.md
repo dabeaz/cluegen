@@ -9,7 +9,7 @@ where you pick the features that you want:
     class Base(Init, Repr):
         pass
 
-In this example, the `Base` class creates an `__init__()` and an
+In this example, the `Base` class creates an `__init__()` and a
 `__repr__()` method for you. Next, you start defining your classes:
 
     class Coordinates(Base):
