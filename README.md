@@ -23,18 +23,18 @@ In this example, the `Base` class creates an `__init__()` and an
 
 Here's how the resulting classes work:
 
-   >>> a = Coordinates(2, 3)
-   >>> a
-   Coordinates(x=2, y=3)
-   >>> a.x
-   2
-   >>> a.y
-   3
-   >>> 
-   >>> b = Holding(name='ACME', shares=50, price=123.45)
-   >>> b
-   Holding(name='ACME', shares=50, price=123.45)
-   >>>
+    >>> a = Coordinates(2, 3)
+    >>> a
+    Coordinates(x=2, y=3)
+    >>> a.x
+    2
+    >>> a.y
+    3
+    >>> 
+    >>> b = Holding(name='ACME', shares=50, price=123.45)
+    >>> b
+    Holding(name='ACME', shares=50, price=123.45)
+    >>>
 
 That's more-or-less it.  At least for now.
 
