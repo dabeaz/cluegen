@@ -1,4 +1,10 @@
 # cluegen.py
+# 
+# Classes generated from type clues.
+#
+# Author: David Beazley (@dabeaz). http://www.dabeaz.com
+
+__all__ = ['Init', 'Repr', 'Equals']
 
 def cluegen(func):
     def __get__(self, instance, cls):
@@ -37,13 +43,24 @@ class Equals:
                '    else:\n' \
                '        return NotImplemented\n' % (selfvals, othervals)
 
+# EXAMPLE USE
 if __name__ == '__main__':
-    # Pick your features
-    class Base(Init, Repr, Equals):
+    # Pick the features that you want in a base class
+    class Base(Init, Repr):
         pass
 
+    # Start defining class
     class Coordinates(Base):
         x: int
-        y: int = 23
+        y: int
 
+    class Stock(Base):
+        name: str
+        shares: int
+        price: float
+
+    class Vec3(Base):
+        x: float
+        y: float
+        z: float
 
