@@ -2,7 +2,7 @@
 
 Cluegen is a library that allows classes to be easily created by
 Python type clues. Here how it works. First, you create a base class
-where you pick the features that you want::
+where you pick the features that you want:
 
     from cluegen import Init, Repr
 
@@ -10,7 +10,7 @@ where you pick the features that you want::
         pass
 
 In this example, the `Base` class creates an `__init__()` and an
-`__repr__()` method for you. Next, you start defining your classes::
+`__repr__()` method for you. Next, you start defining your classes:
 
     class Coordinates(Base):
         x: int
@@ -21,7 +21,7 @@ In this example, the `Base` class creates an `__init__()` and an
         shares: int
         price: float
 
-Here's how the resulting classes work::
+Here's how the resulting classes work:
 
    >>> a = Coordinates(2, 3)
    >>> a
