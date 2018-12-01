@@ -12,6 +12,7 @@ __all__ = ['Init', 'Repr', 'Equals']
 def cluegen(func):
     def __get__(self, instance, cls):
         locs = { }
+#        print("CODE:", func(cls))
         exec(func(cls), locs)
         setattr(cls, func.__name__, locs[func.__name__])
         return getattr(cls, func.__name__).__get__(instance, cls)
@@ -20,31 +21,30 @@ def cluegen(func):
 class Init:
     @cluegen
     def __init__(cls):
-        args = ', '.join('%s=%r' % (name, getattr(cls, name))
+        args = ', '.join(f'{name}={getattr(cls,name)!r}'
                         if hasattr(cls, name) else name
                         for name in cls.__annotations__)
-        body = '\n'.join('  self.%s = %s' % (name,name) 
+        body = '\n'.join(f'  self.{name} = {name}'
                          for name in cls.__annotations__)
-        return 'def __init__(self, %s):\n%s\n' % (args, body)
+        return f'def __init__(self, {args}):\n{body}\n'
 
 class Repr:
     @cluegen
     def __repr__(cls):
-        vals = ','.join('self.%s' % name for name in cls.__annotations__)
-        fmt = ', '.join('%s=%%r' % name for name in cls.__annotations__)
+        fmt = ', '.join('%s={self.%s!r}' % (name, name) for name in cls.__annotations__)
         return 'def __repr__(self):\n' \
-               '    return "%s(%s)" %% (%s)\n' % (cls.__name__, fmt, vals)
+               '    return f"{type(self).__name__}(%s)"' % fmt
 
 class Equals:
     @cluegen
     def __eq__(cls):
-        selfvals = ','.join('self.%s' % name for name in cls.__annotations__)
-        othervals = ','.join('other.%s' % name for name in cls.__annotations__)
+        selfvals = ','.join(f'self.{name}' for name in cls.__annotations__)
+        othervals = ','.join(f'other.{name}'for name in cls.__annotations__)
         return 'def __eq__(self, other):\n' \
                '    if self.__class__ is other.__class__:\n' \
-               '        return (%s,) == (%s,)\n' \
+               f'        return ({selfvals},) == ({othervals},)\n' \
                '    else:\n' \
-               '        return NotImplemented\n' % (selfvals, othervals)
+               '        return NotImplemented\n'
 
 # EXAMPLE USE
 if __name__ == '__main__':
