@@ -1,55 +1,82 @@
 # cluegen.py
 # 
-# Classes generated from type clues.
+# Classes generated from type clues. 
 #
 # Author: David Beazley (@dabeaz). 
 #         http://www.dabeaz.com
 #
-# Copyright (C) 2018
-
-__all__ = ['Init', 'Repr', 'Equals']
+# Copyright (C) 2018.
+#
+# Permission is granted to use, copy, and modify this code in any
+# manner as long as this copyright message and disclaimer remain in
+# the source code.  There is no warranty.  Try to use the code for the
+# greater good.
+#
+# Take a course! https://www.dabeaz.com/courses.html
 
 def cluegen(func):
     def __get__(self, instance, cls):
         locs = { }
-#        print("CODE:", func(cls))
         exec(func(cls), locs)
         setattr(cls, func.__name__, locs[func.__name__])
         return getattr(cls, func.__name__).__get__(instance, cls)
     return type('D', (), dict(__get__=__get__))()
 
+def all_clues(cls):
+    ann = { }
+    for c in reversed(cls.__mro__):
+        ann.update(getattr(c, '__annotations__', {}))
+    return ann
+
 class Init:
     @cluegen
     def __init__(cls):
+        clues = all_clues(cls)
         args = ', '.join(f'{name}={getattr(cls,name)!r}'
                         if hasattr(cls, name) else name
-                        for name in cls.__annotations__)
+                        for name in clues)
         body = '\n'.join(f'  self.{name} = {name}'
-                         for name in cls.__annotations__)
+                         for name in clues)
         return f'def __init__(self, {args}):\n{body}\n'
+
+    @classmethod
+    def __init_subclass__(cls, *args, **kwargs):
+        cls.__init__ = Init.__dict__['__init__']
+        super().__init_subclass__(*args, **kwargs)
 
 class Repr:
     @cluegen
     def __repr__(cls):
-        fmt = ', '.join('%s={self.%s!r}' % (name, name) for name in cls.__annotations__)
+        fmt = ', '.join('%s={self.%s!r}' % (name, name) for name in all_clues(cls))
         return 'def __repr__(self):\n' \
                '    return f"{type(self).__name__}(%s)"' % fmt
 
-class Equals:
+    @classmethod
+    def __init_subclass__(cls, *args, **kwargs):
+        cls.__repr__ = Repr.__dict__['__repr__']
+        super().__init_subclass__(*args, **kwargs)
+
+class Eq:
     @cluegen
     def __eq__(cls):
-        selfvals = ','.join(f'self.{name}' for name in cls.__annotations__)
-        othervals = ','.join(f'other.{name}'for name in cls.__annotations__)
+        clues = all_clues(cls)
+        selfvals = ','.join(f'self.{name}' for name in clues)
+        othervals = ','.join(f'other.{name}'for name in clues)
         return 'def __eq__(self, other):\n' \
                '    if self.__class__ is other.__class__:\n' \
                f'        return ({selfvals},) == ({othervals},)\n' \
                '    else:\n' \
                '        return NotImplemented\n'
 
+    @classmethod
+    def __init_subclass__(cls, *args, **kwargs):
+        cls.__eq__ = Eq.__dict__['__eq__']
+        super().__init_subclass__(*args, **kwargs)
+
 # EXAMPLE USE
 if __name__ == '__main__':
     # Pick the features that you want in a base class
-    class Base(Init, Repr):
+    class Base(Init, Repr, Eq):
         pass
 
     # Start defining classes

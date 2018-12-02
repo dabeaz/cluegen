@@ -83,12 +83,16 @@ def main(reps):
     run_test('standard classes', reps)
     write_perftemp(100, dataclass_template, 'from dataclasses import dataclass\n')
     run_test('dataclasses', reps)
-    write_perftemp(100, attr_template, 'import attr\n')
-    run_test('attrs', reps)
-    write_perftemp(100, cluegen_template, 'import cluegen\nclass Base(cluegen.Init, cluegen.Repr, cluegen.Equals): pass\n')
+    try:
+        write_perftemp(100, attr_template, 'import attr\n')
+        run_test('attrs', reps)
+    except ImportError:
+        print("attrs not installed")
+
+    write_perftemp(100, cluegen_template, 'import cluegen\nclass Base(cluegen.Init, cluegen.Repr, cluegen.Eq): pass\n')
     run_test('cluegen', reps)
 
-    write_perftemp(100, cluegen_eval_template, 'import cluegen\nclass Base(cluegen.Init, cluegen.Repr, cluegen.Equals): pass\n')
+    write_perftemp(100, cluegen_eval_template, 'import cluegen\nclass Base(cluegen.Init, cluegen.Repr, cluegen.Eq): pass\n')
     run_test('cluegen_eval', reps)
 
 if __name__ == '__main__':
