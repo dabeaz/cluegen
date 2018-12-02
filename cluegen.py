@@ -20,8 +20,9 @@ def cluegen(func):
         code = func(cls)
         if code:
             exec(code, locs)
-            setattr(cls, func.__name__, locs[func.__name__])
-            return getattr(cls, func.__name__).__get__(instance, cls)
+            meth = locs[func.__name__]
+            setattr(cls, func.__name__, meth)
+            return meth.__get__(instance, cls)
         else:
             return self
     return type(f'ClueGen_{func.__name__}', (), dict(__get__=__get__))()
@@ -44,9 +45,12 @@ class Init:
                              for name in clues)
             return f'def __init__(self, {args}):\n{body}\n'
 
+    # This method is needed if you want to propagate the method via inheritance.
+    # Child classes need to make sure they can lazily produce the correct method.
+    # So, we copy the magic code generation descriptor from here to the child.
     @classmethod
     def __init_subclass__(cls, *args, **kwargs):
-        cls.__init__ = Init.__dict__['__init__']
+        cls.__init__ = Init.__init__
         super().__init_subclass__(*args, **kwargs)
 
 class Repr:
@@ -60,7 +64,20 @@ class Repr:
 
     @classmethod
     def __init_subclass__(cls, *args, **kwargs):
-        cls.__repr__ = Repr.__dict__['__repr__']
+        cls.__repr__ = Repr.__repr__
+        super().__init_subclass__(*args, **kwargs)
+
+class Iter:
+    @cluegen
+    def __iter__(cls):
+        clues = all_clues(cls)
+        if clues:
+            values = '\n'.join(f'    yield self.{name}' for name in clues)
+            return 'def __iter__(self):\n' + values
+
+    @classmethod
+    def __init_subclass__(cls, *args, **kwargs):
+        cls.__iter__ = Iter.__iter__
         super().__init_subclass__(*args, **kwargs)
 
 class Eq:
@@ -78,13 +95,13 @@ class Eq:
 
     @classmethod
     def __init_subclass__(cls, *args, **kwargs):
-        cls.__eq__ = Eq.__dict__['__eq__']
+        cls.__eq__ = Eq.__eq__
         super().__init_subclass__(*args, **kwargs)
 
 # EXAMPLE USE
 if __name__ == '__main__':
     # Pick the features that you want in a base class
-    class Base(Init, Repr, Eq):
+    class Base(Init, Repr, Eq, Iter):
         pass
 
     # Start defining classes

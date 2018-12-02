@@ -76,8 +76,8 @@ time for situations where a program might only be using a subset of the
 defined data classes.
 
 `cluegen` doesn't have many other bells and whistles--the entire
-implementation is under 100 lines of code.  It's something that you
-can easily understand, modify, and play around with.
+implementation is about 100 lines of code.  It's something that you
+can understand, modify, and play around with.
 
 ## Questions and Answers
 
@@ -102,10 +102,6 @@ So, if someone asks "what are you doing?", you don't say "I'm using
 cluegen."  No, you'd say "I'm cluegin up some classes."  The latter is
 more accurate as it describes both the tool and the thing that you're
 actually doing.  Accuracy matters.
-
-
-
-
 
 
 
