@@ -79,6 +79,31 @@ defined data classes.
 implementation is under 100 lines of code.  It's something that you
 can easily understand, modify, and play around with.
 
+## Questions and Answers
+
+**Q: Does `cluegen` enforce the specified types?**
+
+A: No. The types are merely clues about what the value might be
+and the Python language does not provide any enforcement on its own.
+The types might be useful in an IDE or third-party tools that
+perform type-checking or linting.  You could probably extend `cluegen`
+to enforce types if you wanted though.
+
+**Q: How do I install `cluegen`?**
+
+A: There is no `setup.py` file, installer, or an official release. You
+install it by copying the code into your own project. `cluegen.py` is
+small. You are encouraged to copy and modify it to your own purposes.
+
+**Q: How do you pronounce and use `cluegen` in a sentence?**
+
+A: You should pronounce it as "kludg-in" as in "runnin" or "trippin".
+So, if someone asks "what are you doing?", you don't say "I'm using
+cluegen."  No, you'd say "I'm cluegin up some classes."  The latter is
+more accurate as it describes both the tool and the thing that you're
+actually doing.  Accuracy matters.
+
+
 
 
 
