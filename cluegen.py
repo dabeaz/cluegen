@@ -17,10 +17,14 @@
 def cluegen(func):
     def __get__(self, instance, cls):
         locs = { }
-        exec(func(cls), locs)
-        setattr(cls, func.__name__, locs[func.__name__])
-        return getattr(cls, func.__name__).__get__(instance, cls)
-    return type('D', (), dict(__get__=__get__))()
+        code = func(cls)
+        if code:
+            exec(code, locs)
+            setattr(cls, func.__name__, locs[func.__name__])
+            return getattr(cls, func.__name__).__get__(instance, cls)
+        else:
+            return self
+    return type(f'ClueGen_{func.__name__}', (), dict(__get__=__get__))()
 
 def all_clues(cls):
     ann = { }
@@ -32,12 +36,13 @@ class Init:
     @cluegen
     def __init__(cls):
         clues = all_clues(cls)
-        args = ', '.join(f'{name}={getattr(cls,name)!r}'
-                        if hasattr(cls, name) else name
-                        for name in clues)
-        body = '\n'.join(f'  self.{name} = {name}'
-                         for name in clues)
-        return f'def __init__(self, {args}):\n{body}\n'
+        if clues:
+            args = ', '.join(f'{name}={getattr(cls,name)!r}'
+                            if hasattr(cls, name) else name
+                            for name in clues)
+            body = '\n'.join(f'  self.{name} = {name}'
+                             for name in clues)
+            return f'def __init__(self, {args}):\n{body}\n'
 
     @classmethod
     def __init_subclass__(cls, *args, **kwargs):
@@ -47,9 +52,11 @@ class Init:
 class Repr:
     @cluegen
     def __repr__(cls):
-        fmt = ', '.join('%s={self.%s!r}' % (name, name) for name in all_clues(cls))
-        return 'def __repr__(self):\n' \
-               '    return f"{type(self).__name__}(%s)"' % fmt
+        clues = all_clues(cls)
+        if clues:
+            fmt = ', '.join('%s={self.%s!r}' % (name, name) for name in clues)
+            return 'def __repr__(self):\n' \
+                   '    return f"{type(self).__name__}(%s)"' % fmt
 
     @classmethod
     def __init_subclass__(cls, *args, **kwargs):
@@ -60,13 +67,14 @@ class Eq:
     @cluegen
     def __eq__(cls):
         clues = all_clues(cls)
-        selfvals = ','.join(f'self.{name}' for name in clues)
-        othervals = ','.join(f'other.{name}'for name in clues)
-        return 'def __eq__(self, other):\n' \
-               '    if self.__class__ is other.__class__:\n' \
-               f'        return ({selfvals},) == ({othervals},)\n' \
-               '    else:\n' \
-               '        return NotImplemented\n'
+        if clues:
+            selfvals = ','.join(f'self.{name}' for name in clues)
+            othervals = ','.join(f'other.{name}'for name in clues)
+            return 'def __eq__(self, other):\n' \
+                   '    if self.__class__ is other.__class__:\n' \
+                   f'        return ({selfvals},) == ({othervals},)\n' \
+                   '    else:\n' \
+                   '        return NotImplemented\n'
 
     @classmethod
     def __init_subclass__(cls, *args, **kwargs):
