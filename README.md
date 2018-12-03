@@ -73,7 +73,10 @@ to your class.
 "lazy."  That is, no methods are generated until they're actually
 needed during execution.  This substantially reduces import and startup
 time for situations where a program might only be using a subset of the
-defined data classes.
+defined data classes.  Take a look at the `perf.py` file to see a performance
+test.  You'll find that importing a large file of classes defined
+with `cluegen` is about 15x faster than loading a similar file that
+uses dataclasses from the standard library. 
 
 `cluegen` doesn't have many other bells and whistles--the entire
 implementation is about 100 lines of code.  It's something that you
@@ -103,6 +106,10 @@ cluegen."  No, you'd say "I'm cluegin up some classes."  The latter is
 more accurate as it describes both the tool and the thing that you're
 actually doing.  Accuracy matters.
 
+**Q: Is this some kind of joke?**
+
+A: No. `cluegen` uses a different approach to generating data classes that
+is faster, simpler, and smaller than other popular alternatives.  
 
 
         
