@@ -14,11 +14,19 @@
 #
 # Take a course! https://www.dabeaz.com/courses.html
 
+
+def all_clues(cls):
+    clues = { }
+    for c in reversed(cls.__mro__):
+        clues.update(getattr(c, '__annotations__', {}))
+    return clues
+
 def cluegen(func):
     def __get__(self, instance, cls):
-        locs = { }
-        code = func(cls)
-        if code:
+        clues = all_clues(cls)
+        if clues:
+            locs = { }
+            code = func(cls, clues)
             exec(code, locs)
             meth = locs[func.__name__]
             setattr(cls, func.__name__, meth)
@@ -27,23 +35,15 @@ def cluegen(func):
             return self
     return type(f'ClueGen_{func.__name__}', (), dict(__get__=__get__))()
 
-def all_clues(cls):
-    ann = { }
-    for c in reversed(cls.__mro__):
-        ann.update(getattr(c, '__annotations__', {}))
-    return ann
-
 class Init:
     @cluegen
-    def __init__(cls):
-        clues = all_clues(cls)
-        if clues:
-            args = ', '.join(f'{name}={getattr(cls,name)!r}'
-                            if hasattr(cls, name) else name
-                            for name in clues)
-            body = '\n'.join(f'  self.{name} = {name}'
-                             for name in clues)
-            return f'def __init__(self, {args}):\n{body}\n'
+    def __init__(cls, clues):
+        args = ', '.join(f'{name}={getattr(cls,name)!r}'
+                        if hasattr(cls, name) else name
+                        for name in clues)
+        body = '\n'.join(f'  self.{name} = {name}'
+                         for name in clues)
+        return f'def __init__(self, {args}):\n{body}\n'
 
     # This method is needed if you want to propagate the method via inheritance.
     # Child classes need to make sure they can lazily produce the correct method.
@@ -55,12 +55,10 @@ class Init:
 
 class Repr:
     @cluegen
-    def __repr__(cls):
-        clues = all_clues(cls)
-        if clues:
-            fmt = ', '.join('%s={self.%s!r}' % (name, name) for name in clues)
-            return 'def __repr__(self):\n' \
-                   '    return f"{type(self).__name__}(%s)"' % fmt
+    def __repr__(cls, clues):
+        fmt = ', '.join('%s={self.%s!r}' % (name, name) for name in clues)
+        return 'def __repr__(self):\n' \
+               '    return f"{type(self).__name__}(%s)"' % fmt
 
     @classmethod
     def __init_subclass__(cls, *args, **kwargs):
@@ -69,11 +67,9 @@ class Repr:
 
 class Iter:
     @cluegen
-    def __iter__(cls):
-        clues = all_clues(cls)
-        if clues:
-            values = '\n'.join(f'    yield self.{name}' for name in clues)
-            return 'def __iter__(self):\n' + values
+    def __iter__(cls, clues):
+        values = '\n'.join(f'    yield self.{name}' for name in clues)
+        return 'def __iter__(self):\n' + values
 
     @classmethod
     def __init_subclass__(cls, *args, **kwargs):
@@ -82,16 +78,14 @@ class Iter:
 
 class Eq:
     @cluegen
-    def __eq__(cls):
-        clues = all_clues(cls)
-        if clues:
-            selfvals = ','.join(f'self.{name}' for name in clues)
-            othervals = ','.join(f'other.{name}'for name in clues)
-            return 'def __eq__(self, other):\n' \
-                   '    if self.__class__ is other.__class__:\n' \
-                   f'        return ({selfvals},) == ({othervals},)\n' \
-                   '    else:\n' \
-                   '        return NotImplemented\n'
+    def __eq__(cls, clues):
+        selfvals = ','.join(f'self.{name}' for name in clues)
+        othervals = ','.join(f'other.{name}'for name in clues)
+        return 'def __eq__(self, other):\n' \
+               '    if self.__class__ is other.__class__:\n' \
+               f'        return ({selfvals},) == ({othervals},)\n' \
+               '    else:\n' \
+               '        return NotImplemented\n'
 
     @classmethod
     def __init_subclass__(cls, *args, **kwargs):
