@@ -6,8 +6,11 @@ that you want and you put them in a base class:
 
     import cluegen
 
-    class Base(cluegen.Init, cluegen.Repr):
-        pass
+    class Base(cluegen.ClueGen):
+        __slots__ = ()
+        __init__ = cluegen.__init__
+        __repr__ = cluegen.__repr__
+
 
 In this example, `Base` provides an `__init__()` and a `__repr__()`
 method for you (naturally, you could also put other methods in

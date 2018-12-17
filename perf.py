@@ -89,10 +89,18 @@ def main(reps):
     except ImportError:
         print("attrs not installed")
 
-    write_perftemp(100, cluegen_template, 'import cluegen\nclass Base(cluegen.Init, cluegen.Repr, cluegen.Eq): pass\n')
+    base = '''
+import cluegen
+class Base(cluegen.ClueGen):
+    __slots__ = ()
+    __init__ = cluegen.__init__
+    __repr__ = cluegen.__repr__
+    __eq__ = cluegen.__eq__
+'''
+    write_perftemp(100, cluegen_template, base)
     run_test('cluegen', reps)
 
-    write_perftemp(100, cluegen_eval_template, 'import cluegen\nclass Base(cluegen.Init, cluegen.Repr, cluegen.Eq): pass\n')
+    write_perftemp(100, cluegen_eval_template, base)
     run_test('cluegen_eval', reps)
 
 if __name__ == '__main__':

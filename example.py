@@ -1,7 +1,9 @@
 import cluegen
 
-class Base(cluegen.Init, cluegen.Repr):
-    pass
+class Base(cluegen.ClueGen):
+    __slots__ = ()
+    __init__ = cluegen.__init__
+    __repr__ = cluegen.__repr__
 
 class Coordinates(Base):
     x: int
