@@ -43,7 +43,7 @@ class C{n}:
 '''
 
 cluegen_template = '''
-class C{n}(Base):
+class C{n}(Datum):
     a : int
     b : int
     c : int
@@ -51,9 +51,9 @@ class C{n}(Base):
     e : int
 '''
 
-# cluegen, but with all methods fully generated
+# cluegen, but same default methods as dataclasses generated
 cluegen_eval_template = '''
-class C{n}(Base):
+class C{n}(Datum):
     a : int
     b : int
     c : int
@@ -89,18 +89,10 @@ def main(reps):
     except ImportError:
         print("attrs not installed")
 
-    base = '''
-import cluegen
-class Base(cluegen.ClueGen):
-    __slots__ = ()
-    __init__ = cluegen.__init__
-    __repr__ = cluegen.__repr__
-    __eq__ = cluegen.__eq__
-'''
-    write_perftemp(100, cluegen_template, base)
+    write_perftemp(100, cluegen_template, 'from cluegen import Datum\n')
     run_test('cluegen', reps)
 
-    write_perftemp(100, cluegen_eval_template, base)
+    write_perftemp(100, cluegen_eval_template, 'from cluegen import Datum\n')
     run_test('cluegen_eval', reps)
 
 if __name__ == '__main__':

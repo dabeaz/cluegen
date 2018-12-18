@@ -1,20 +1,31 @@
-import cluegen
+from cluegen import Datum, cluegen
 
-class Base(cluegen.ClueGen):
-    __slots__ = ()
-    __init__ = cluegen.__init__
-    __repr__ = cluegen.__repr__
-
-class Coordinates(Base):
+class Coordinates(Datum):
     x: int
     y: int
 
 class Coordinates3(Coordinates):
     z: int
 
-class Holding(Base):
+class Holding(Datum):
     name: str
     shares: int
     price: float
 
+# Example of extending Datum with a new feature
+
+class MyDatum(Datum):
+    @cluegen
+    def as_dict(cls, clues):
+        return ('def as_dict(self):\n' + 
+                '    return {\n' +
+                '\n'.join(f'   {key!r}: self.{key},\n' for key in clues) +
+                '}\n')
+
+class Point(MyDatum):
+    x: int
+    y: int
+
+
+               
 
