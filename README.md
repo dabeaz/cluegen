@@ -107,6 +107,120 @@ forward, the class uses the generated code instead.
 implementation is about 100 lines of code.  It's something that you
 can understand, modify, and play around with.  
 
+## Making Your Own Datum Class
+
+The provided `Datum` class generates code for a common set of default
+methods.  You really don't need to use this if you want to go in a
+completely different direction.   For example, suppose that you 
+wanted to abandon type hints and generate code based on `__slots__`
+instead.  Here's an example of how you could do it:
+
+    from cluegen import DatumBase, cluegen
+
+    def all_slots(cls):
+        slots = []
+        for cls in cls.__mro__:
+            slots[0:0] = getattr(cls, '__slots__', [])
+        return slots
+
+    class SlotDatum(DatumBase):
+        __slots__ = ()
+        @cluegen
+        def __init__(cls, clues):
+            slots = all_slots(cls)
+            return ('def __init__(self, ' + ','.join(slots) + '):\n' +
+                    '\n'.join(f'    self.{name} = {name}' for name in slots)
+                    )
+
+        @cluegen
+        def __repr__(cls, clues):
+            slots = all_slots(cls)
+            return ('def __repr__(self):\n' + 
+                    f'    return f"{cls.__name__}(' + 
+                    ','.join('%s={self.%s!r}' % (name, name) for name in slots) + ')"'
+                    )
+
+Some of the string formatting might take a bit of pondering.  However, here is an
+example of how you'd use `SlotDatum`:
+
+    >>> class Point(SlotDatum):
+    ...     __slots__ = ('x', 'y')
+    ... 
+    >>> p = Point(2,3)
+    >>> p
+    Point(x=2,y=3)
+    >>> class Point3(Point):
+    ...     __slots__ = ('z',)
+    ... 
+    >>> p3 = Point3(2,3,4)
+    >>> p3
+    Point3(x=2,y=3,z=4)
+    >>> 
+
+
+## Theory of Operation
+
+Cluegen is based on Python's descriptor protocol.  In a nutshell, whenever
+you access an attribute of a class, Python looks for an object that 
+implements a magic `__get__()` method.  If found, it invokes `__get__()`
+with the associated instance and class.  Cluegen uses this to generate
+code on first-access to special methods such as `__init__()`.  Here 
+is an example of the machinery at work.
+
+First, define a class:
+
+    >>> class Point(Datum):
+    ...     x: int
+    ...     y: int
+    ... 
+    >>>
+
+Now, look at the `__init__()` method in the class dictionary.  You'll
+see that's some kind of strange "ClueGen" instance:
+
+    >>> Point.__dict__['__init__']
+    <__main__.ClueGen___init__ object at 0x102ec1240>
+    >>> 
+
+This object represents the "unevaluated" method.  If you touch the
+`__init__` attribute on the class in any way, you'll see the Cluegen
+object disappear and be replaced by a proper function:
+
+    >>> Point.__init__
+    <function __init__ at 0x102e208c8>
+    >>> Point.__dict__['__init__']
+    <function __init__ at 0x102e208c8>
+    >>> 
+
+This is the basic idea--code generation on first access to an
+attribute. Inheritance adds an extra wrinkle into the equation.
+Suppose you define a subclass:
+
+    >>> class Point3(Point):
+    ...     z: int
+    ... 
+    >>> Point3.__dict__['__init__']
+    <__main__.ClueGen___init__ object at 0x102ec1240>
+    >>> 
+
+Here, you'll see the "ClueGen" object make a return to the class dictionary.
+Again, it gets replaced when it's first accessed.  Here's what happens
+at a low level when you make an instance:
+
+    >>> i = Point3.__dict__['__init__']
+    >>> i.__get__(None, Point3)
+    <function __init__ at 0x102e20950>
+    >>> Point3.__init__
+    <function __init__ at 0x102e20950>
+    >>> p = Point3(1,2,3)
+    >>> p
+    Point3(x=1, y=2, z=3)
+    >>> 
+
+For more reading, look for information on Python's "Descriptor Protocol."
+This is the same machinery that makes properties, classmethods, and other
+features of the object system work.
+
 ## Questions and Answers
 
 **Q: What methods does `cluegen` generate?**
@@ -128,7 +242,7 @@ A: No. The `Datum` base class is plain Python class.  It defines an
 `__init_subclass__()` method to assist with the management of
 subclasses, but nothing other than the standard special methods
 such as `__init__()`, `__repr__()`, `__iter__()`, and `__eq__()` are
-defined.
+defined.  Python's descriptor protocol is used to drive code generation.
 
 **Q: How do I install `cluegen`?**
 

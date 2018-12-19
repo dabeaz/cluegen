@@ -27,15 +27,12 @@ def all_clues(cls):
 def cluegen(func):
     def __get__(self, instance, cls):
         clues = all_clues(cls)
-        if clues:
-            locs = { }
-            code = func(cls, clues)
-            exec(code, locs)
-            meth = locs[func.__name__]
-            setattr(cls, func.__name__, meth)
-            return meth.__get__(instance, cls)
-        else:
-            return self
+        locs = { }
+        code = func(cls, clues)
+        exec(code, locs)
+        meth = locs[func.__name__]
+        setattr(cls, func.__name__, meth)
+        return meth.__get__(instance, cls)
 
     def __set_name__(self, cls, name):
         methods = cls.__dict__.get('_methods', list(cls._methods))
