@@ -14,9 +14,11 @@ class Holding(Datum):
 
 # Example of extending Datum with a new feature
 
+from cluegen import all_clues
 class MyDatum(Datum):
     @cluegen
-    def as_dict(cls, clues):
+    def as_dict(cls):
+        clues = all_clues(cls)
         return ('def as_dict(self):\n' + 
                 '    return {\n' +
                 '\n'.join(f'   {key!r}: self.{key},\n' for key in clues) +
@@ -39,14 +41,14 @@ def all_slots(cls):
 class SlotDatum(DatumBase):
     __slots__ = ()
     @cluegen
-    def __init__(cls, clues):
+    def __init__(cls):
         slots = all_slots(cls)
         return ('def __init__(self, ' + ','.join(slots) + '):\n' +
                 '\n'.join(f'    self.{name} = {name}' for name in slots)
                 )
 
     @cluegen
-    def __repr__(cls, clues):
+    def __repr__(cls):
         slots = all_slots(cls)
         return ('def __repr__(self):\n' + 
                 f'    return f"{cls.__name__}(' + 

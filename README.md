@@ -72,11 +72,12 @@ performance test.
 wanted to add your own custom code generation method to the `Datum` 
 class.  Here's an example of how you could do that:
 
-    from cluegen import Datum, cluegen
+    from cluegen import Datum, cluegen, all_clues
 
     class MyDatum(Datum):
         @cluegen
-        def as_dict(cls, clues):
+        def as_dict(cls):
+            clues = all_clues(cls)
             return ('def as_dict(self):\n' + 
                     '    return {\n' +
                     '\n'.join(f'   {key!r}: self.{key},\n' for key in clues) +
@@ -94,9 +95,10 @@ Now, a test:
     >>>
 
 In the above example, the decorated `as_dict()` method is presented
-with information about the class and a dictionary of all collected
-type clues (including those from base classes).  In this case, `cls`
-would be `Point` and `clues` would be a dictionary `{'x': int, 'y':
+the class.  In this case, `cls`
+would be `Point`. The `all_clues()` function is a utility function that
+collects all type-clues from a class including those from base classes.
+For this example, it returns a dictionary `{'x': int, 'y':
 int}`.  The value returned by `as_dict()` is a text-string containing
 the implementation of the actual `as_dict()` method as it would be if
 you had written it by hand.  This text string is executed once to
@@ -126,14 +128,14 @@ instead.  Here's an example of how you could do it:
     class SlotDatum(DatumBase):
         __slots__ = ()
         @cluegen
-        def __init__(cls, clues):
+        def __init__(cls):
             slots = all_slots(cls)
             return ('def __init__(self, ' + ','.join(slots) + '):\n' +
                     '\n'.join(f'    self.{name} = {name}' for name in slots)
                     )
 
         @cluegen
-        def __repr__(cls, clues):
+        def __repr__(cls):
             slots = all_slots(cls)
             return ('def __repr__(self):\n' + 
                     f'    return f"{cls.__name__}(' + 

@@ -26,9 +26,8 @@ def all_clues(cls):
 # Decorator to define methods of a class as a code generator.
 def cluegen(func):
     def __get__(self, instance, cls):
-        clues = all_clues(cls)
         locs = { }
-        code = func(cls, clues)
+        code = func(cls)
         exec(code, locs)
         meth = locs[func.__name__]
         setattr(cls, func.__name__, meth)
@@ -64,7 +63,8 @@ class DatumBase:
 class Datum(DatumBase):
     __slots__ = ()
     @cluegen
-    def __init__(cls, clues):
+    def __init__(cls):
+        clues = all_clues(cls)
         args = ', '.join(f'{name}={getattr(cls,name)!r}'
                         if hasattr(cls, name) and not isinstance(getattr(cls, name), types.MemberDescriptorType) else name
                         for name in clues)
@@ -73,19 +73,22 @@ class Datum(DatumBase):
         return f'def __init__(self, {args}):\n{body}\n'
 
     @cluegen
-    def __repr__(cls, clues):
+    def __repr__(cls):
+        clues = all_clues(cls)
         fmt = ', '.join('%s={self.%s!r}' % (name, name) for name in clues)
         return 'def __repr__(self):\n' \
                '    return f"{type(self).__name__}(%s)"' % fmt
 
     @cluegen
-    def __iter__(cls, clues):
+    def __iter__(cls):
+        clues = all_clues(cls)
         values = '\n'.join(f'    yield self.{name}' for name in clues)
         return 'def __iter__(self):\n' + values
 
 
     @cluegen
-    def __eq__(cls, clues):
+    def __eq__(cls):
+        clues = all_clues(cls)
         selfvals = ','.join(f'self.{name}' for name in clues)
         othervals = ','.join(f'other.{name}'for name in clues)
         return 'def __eq__(self, other):\n' \
