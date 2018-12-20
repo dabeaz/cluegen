@@ -260,8 +260,8 @@ cluegen."  No, you'd say "I'm cluegin up some classes."  The latter is
 more accurate as it describes both the tool and the thing that you're
 actually doing.  Accuracy matters.
 
-**Q: Is this some kind of joke?**
+**Q: Who maintains cluegen?**
 
-A: No. `cluegen` generates useful data classes in a way that is fast,
-simple, and small.
+A: `cluegen` is the work of David Beazley. http://www.dabeaz.com.
+
         

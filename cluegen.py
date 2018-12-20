@@ -2,17 +2,17 @@
 # 
 # Classes generated from type clues. 
 #
+#     https://github.com/dabeaz/cluegen
+#
 # Author: David Beazley (@dabeaz). 
 #         http://www.dabeaz.com
 #
-# Copyright (C) 2018.
+# Copyright (C) 2018-2019.
 #
 # Permission is granted to use, copy, and modify this code in any
 # manner as long as this copyright message and disclaimer remain in
 # the source code.  There is no warranty.  Try to use the code for the
 # greater good.
-#
-# Take a course! https://www.dabeaz.com/courses.html
 
 import types
 
