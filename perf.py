@@ -22,6 +22,10 @@ class C{n}:
             return NotImplemented
 '''
 
+namedtuple_template = '''
+C{n} = namedtuple('C{n}', ['a', 'b', 'c', 'd', 'e'])
+'''
+
 dataclass_template = '''
 @dataclass
 class C{n}:
@@ -81,6 +85,10 @@ def write_perftemp(count, template, setup):
 def main(reps):
     write_perftemp(100, standard_template, '')
     run_test('standard classes', reps)
+
+    write_perftemp(100, namedtuple_template, 'from collections import namedtuple\n')
+    run_test('namedtuple', reps)
+
     write_perftemp(100, dataclass_template, 'from dataclasses import dataclass\n')
     run_test('dataclasses', reps)
     try:
