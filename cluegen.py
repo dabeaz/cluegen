@@ -97,6 +97,16 @@ class Datum(DatumBase):
                '    else:\n' \
                '        return NotImplemented\n'
 
+    @cluegen
+    def __hash__(cls):
+        clues = all_clues(cls)
+        if clues:
+            self_tuple = '(' + ','.join(f'self.{name}' for name in clues) + ',)'
+        else:
+            self_tuple = '()'
+        return 'def __hash__(self):\n' \
+               f'    return hash({self_tuple})\n'
+
 # Example use
 if __name__ == '__main__':
     # Start defining classes
