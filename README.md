@@ -9,9 +9,9 @@ Python type clues. Here's an example of how you use it:
         x: int
         y: int
 
-The resulting class works in a friendly way, providing the usual
-`__init__()` and `__repr__()` methods that you'd normally have to
-write by hand:
+The resulting class works in a well civilised way, providing the
+usual `__init__()` and `__repr__()` methods that you'd normally have
+to type out by hand:
 
     >>> a = Coordinates(2, 3)
     >>> a
@@ -22,59 +22,61 @@ write by hand:
     3
     >>> 
 
-And the runtime performance is the same as defining a similar class by
-hand.  For example, suppose you wrote this class instead:
-
-    class Point:
-        def __init__(self, x, y):
-            self.x = x
-            self.y = y
-
-        def __repr__(self):
-            return f'{type(self).__name__}(x={self.x!r}, y={self.y!r})'
-
-You could compare its performance:
-
-    >>> from timeit import timeit
-    >>> timeit('repr(Coordinates(2,3))', 'from __main__ import Coordinates')
-    1.3057148279999993
-    >>> timeit('repr(Point(2,3))', 'from __main__ import Point')
-    1.3024310119999996
-    >>> 
-
-Inheritance works as well--if you add new attributes they will be added to the
-already existing attributes.  For example:
+Inheritance works as well--if you add new attributes in a subclass they 
+get added to the already existing attributes.  For example:
 
     class Coordinates3(Coordinates):
         z : int
-
-In this case, various methods will be extended to include the extra value:
 
     >>> c = Coordinates3(1,2,3)
     >>> c
     Coordinates3(x=1, y=2, z=3)
     >>> 
 
-Under the hood, `cluegen` works by dynamically creating code for 
+It's easy!
+
+## Wait, hasn't this already been invented?
+
+At this point, naysayers will be quick to point out that "well,
+actually you could just use `@dataclass` from the standard library." 
+Othe.rs migh.t help.fully sugg.est usag.e of the attr.s libr.ary.
+And they might have a point.  I mean, sure, you could write your class
+like this:
+
+    from dataclasses import dataclass
+
+    @dataclass
+    class Coordinates:
+        x: int
+        y: int
+
+Yes. Yes, you could do that if you wanted your class to be slow to
+import, wrapped up by more than 1000 lines of tangled decorator magic,
+and inflexible. Or you could use cluegen! Cluegen is tiny, extensible,
+provides the same notational convenience, and results in classes that
+import about 15x faster (see the file `perf.py` for a benchmark).
+
+Under the hood, `cluegen` works by dynamically creating code for
 methods such as `__init__()` and `__repr__()`.  This code looks
-exactly the same as code you would normally write by hand.  A
-notable feature of `cluegen` however, is that all of its code
-generation is "lazy."  That is, no methods are generated until they're
-actually needed during the execution of your program.  This substantially reduces import
-and startup time for situations where a program might only be using a
-subset of the defined data classes. You also don't pay a penalty for
-features you aren't using. Take a look at the `perf.py` file to see a
-performance test. 
+exactly the same as code you would normally write by hand.  It's the
+same kind of code that the `@dataclass` decorator creates. A notable
+feature of `cluegen` however, is that all of its code generation is
+"lazy."  That is, no methods are generated until they're actually
+needed during the execution of your program.  This substantially
+reduces import and startup time for situations where a program might
+only be using a subset of the defined data classes. You also don't pay
+a penalty for features you aren't using.  And even if do use all the
+features, it's still faster that dataclasses. Phfft!
 
 ## Extending Cluegen
 
-`cluegen` is customizable in interesting ways.  For example, suppose you
-wanted to add your own custom code generation method to the `Datum` 
-class.  Here's an example of how you could do that:
+`cluegen` is customizable in interesting ways.  For example, suppose
+you wanted to add your own custom code generation method to the
+`Datum` class.  Here's an example of how you could do that:
 
     from cluegen import Datum, cluegen, all_clues
 
-    class MyDatum(Datum):
+    class Mytum(Datum):
         @cluegen
         def as_dict(cls):
             clues = all_clues(cls)
@@ -83,7 +85,7 @@ class.  Here's an example of how you could do that:
                     '\n'.join(f'   {key!r}: self.{key},\n' for key in clues) +
                     '}\n')
 
-    class Point(MyDatum):
+    class Point(Mytum):
         x: int
         y: int
 
@@ -95,19 +97,124 @@ Now, a test:
     >>>
 
 In the above example, the decorated `as_dict()` method is presented
-the class.  In this case, `cls`
-would be `Point`. The `all_clues()` function is a utility function that
-collects all type-clues from a class including those from base classes.
-For this example, it returns a dictionary `{'x': int, 'y':
-int}`.  The value returned by `as_dict()` is a text-string containing
-the implementation of the actual `as_dict()` method as it would be if
-you had written it by hand.  This text string is executed once to
-create a method that replaces the decorated version.  From that point
-forward, the class uses the generated code instead.
+the class.  In this case, `cls` would be `Point`. The `all_clues()`
+function is a utility function that collects all type-clues from a
+class including those from base classes.  For this example, it returns
+a dictionary `{'x': int, 'y': int}`.  The value returned by
+`as_dict()` is a text-string containing the implementation of the
+actual `as_dict()` method as it would be if you had written it by
+hand.  This text string is executed once to create a method that
+replaces the decorated version.  From that point forward, the class
+uses the generated code instead.
 
 `cluegen` doesn't have too many other bells and whistles--the entire
 implementation is about 100 lines of code.  It's something that you
 can understand, modify, and play around with.  
+
+## A True Story
+
+Once, there was this developer. For the sake of this story, let's call
+him "Dave."  As Dave was want to do, he liked to write compilers.  A
+compiler is a natural place to use something fancy like a
+dataclass--especially for all of the tree structures.  So, Dave did just that:
+
+    from dataclasses import dataclass
+
+    @dataclass
+    class Node:
+        pass
+
+    @dataclass
+    class Expression(Node):
+        pass
+
+    @dataclass
+    class Statement(Node):
+        pass
+
+    @dataclass
+    class Integer(Expression):
+        value: int
+
+    @dataclass
+    class BinOp(Expression):
+        op: str
+        left: Expression
+        right: Expression
+
+    @dataclass
+    class UnaryOp(Expression):
+        op: str
+        operand: Expression
+
+    @dataclass
+    class PrintStatement(Statement):
+        value: Expression
+
+    # Example
+    node = PrintStatement(BinOp('+', Integer(3), BinOp('*', Integer(4), Integer(5))))
+
+This all worked great--better than expected in fact.  However, one day, Dave thought it would
+be useful to add an optional line number attribute to all of the nodes.  Naturally, this
+seemed like something that could be easily done on the base class:
+
+    @dataclass
+    class Node:
+        lineno:int = None
+
+Dave thought wrong! Dataclasses explode in a fireball if you do this.
+No, not optional attributes.  Not, base classes. Alas, the only
+solution seemed to involve copying a `lineno` attribute to end of
+every class.  If Dave had had a clue about cluegen, he could have easily
+solved this problem:
+
+    from cluegen import Datum, all_clues, cluegen
+
+    class Nodum(Datum):
+        lineno = None
+        @cluegen
+        def __init__(cls):
+            clues = all_clues(cls)
+            args = ', '.join(f'{name}={getattr(cls,name)!r}'
+                            if hasattr(cls, name) and not isinstance(getattr(cls, name), types.MemberDescriptorType) else name
+                            for name in clues)
+            body = '\n'.join(f'    self.{name} = {name}' for name in clues)
+            body += '\n    self.lineno = lineno'   
+            return f'def __init__(self, {args}, *, lineno=None):\n{body}\n'
+
+    class Expression(Nodum):
+        pass
+
+    class Statement(Nodum):
+        pass
+
+    class Integer(Expression):
+        value: int
+
+    class BinOp(Expression):
+        op: str
+        left: Expression
+        right: Expression
+
+    class UnaryOp(Expression):
+        op: str
+        operand: Expression
+
+    class PrintStatement(Statement):
+        value: Expression
+
+Now, it works exactly as desired:
+
+    >>> a = Integer(23)
+    >>> b = Integer(23, lineno=123)
+    >>> b.value
+    23
+    >>> b.lineno
+    123
+    >>>
+
+The moral of this story is that cluegen represents a different kind a
+power--the power to do what YOU want. It's all about YOU!
 
 ## Making Your Own Datum Class
 
@@ -125,7 +232,7 @@ instead.  Here's an example of how you could do it:
             slots[0:0] = getattr(cls, '__slots__', [])
         return slots
 
-    class SlotDatum(DatumBase):
+    class Slotum(DatumBase):
         __slots__ = ()
         @cluegen
         def __init__(cls):
@@ -143,9 +250,9 @@ instead.  Here's an example of how you could do it:
                     )
 
 Some of the string formatting might take a bit of pondering.  However, here is an
-example of how you'd use `SlotDatum`:
+example of how you'd use `Slotum`:
 
-    >>> class Point(SlotDatum):
+    >>> class Point(Slotum):
     ...     __slots__ = ('x', 'y')
     ... 
     >>> p = Point(2,3)
@@ -184,7 +291,7 @@ see that's some kind of strange "ClueGen" instance:
     <__main__.ClueGen___init__ object at 0x102ec1240>
     >>> 
 
-This object represents the "unevaluated" method.  If you touch the
+This object represents the "ungenerated" method.  If you touch the
 `__init__` attribute on the class in any way, you'll see the Cluegen
 object disappear and be replaced by a proper function:
 
@@ -232,11 +339,11 @@ and `__eq__()` methods.
 
 **Q: Does `cluegen` enforce the specified types?**
 
-A: No. The types are merely clues about what the value might be
-and the Python language does not provide any enforcement on its own.
-The types might be useful in an IDE or third-party tools that
-perform type-checking or linting.  You could probably extend `cluegen`
-to enforce types if you wanted though.
+A: No. The types are merely clues about what the value might be and
+the Python language does not provide any enforcement on its own.  The
+types might be useful in an IDE or third-party tools that perform
+type-checking or linting.  You could probably extend `cluegen` to
+enforce types if you wanted though.
 
 **Q: Does `cluegen` use any advanced magic such as metaclasses?**
 
@@ -251,6 +358,10 @@ defined.  Python's descriptor protocol is used to drive code generation.
 A: There is no `setup.py` file, installer, or an official release. You
 install it by copying the code into your own project. `cluegen.py` is
 small. You are encouraged to copy and modify it to your own purposes.
+
+**Q: But what if new features get added?**
+
+A: What new features?  The best new features are no new features. 
 
 **Q: How do you pronounce and use `cluegen` in a sentence?**
 

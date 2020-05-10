@@ -15,7 +15,7 @@ class Holding(Datum):
 # Example of extending Datum with a new feature
 
 from cluegen import all_clues
-class MyDatum(Datum):
+class Mytum(Datum):
     @cluegen
     def as_dict(cls):
         clues = all_clues(cls)
@@ -24,7 +24,7 @@ class MyDatum(Datum):
                 '\n'.join(f'   {key!r}: self.{key},\n' for key in clues) +
                 '}\n')
 
-class Point(MyDatum):
+class Point(Mytum):
     x: int
     y: int
 
@@ -38,7 +38,7 @@ def all_slots(cls):
         slots[0:0] = getattr(cls, '__slots__', [])
     return slots
 
-class SlotDatum(DatumBase):
+class Slotum(DatumBase):
     __slots__ = ()
     @cluegen
     def __init__(cls):
@@ -55,7 +55,7 @@ class SlotDatum(DatumBase):
                 ','.join('%s={self.%s!r}' % (name, name) for name in slots) + ')"'
                 )
 
-class Fraction(SlotDatum):
+class Fraction(Slotum):
     __slots__ = ('numer', 'denom')
 
 

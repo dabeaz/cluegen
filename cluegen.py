@@ -68,7 +68,7 @@ class Datum(DatumBase):
         args = ', '.join(f'{name}={getattr(cls,name)!r}'
                         if hasattr(cls, name) and not isinstance(getattr(cls, name), types.MemberDescriptorType) else name
                         for name in clues)
-        body = '\n'.join(f'  self.{name} = {name}'
+        body = '\n'.join(f'   self.{name} = {name}'
                          for name in clues)
         return f'def __init__(self, {args}):\n{body}\n'
 
@@ -82,7 +82,7 @@ class Datum(DatumBase):
     @cluegen
     def __iter__(cls):
         clues = all_clues(cls)
-        values = '\n'.join(f'    yield self.{name}' for name in clues)
+        values = '\n'.join(f'   yield self.{name}' for name in clues)
         return 'def __iter__(self):\n' + values
 
 
