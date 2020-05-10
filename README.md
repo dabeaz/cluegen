@@ -66,7 +66,7 @@ needed during the execution of your program.  This substantially
 reduces import and startup time for situations where a program might
 only be using a subset of the defined data classes. You also don't pay
 a penalty for features you aren't using.  And even if do use all the
-features, it's still faster that dataclasses. Phfft!
+features, it's still faster than dataclasses. Phfft!
 
 ## Extending Cluegen
 
@@ -214,7 +214,8 @@ Now, it works exactly as desired:
     >>>
 
 The moral of this story is that cluegen represents a different kind a
-power--the power to do what YOU want. It's all about YOU!
+power--the power to do what YOU want as opposed what they allow. It's
+all about YOU!
 
 ## Making Your Own Datum Class
 
