@@ -166,7 +166,7 @@ Dave thought wrong! Dataclasses explode in a fireball if you do this.
 No, not optional attributes.  Not, base classes. Alas, the only
 solution seemed to involve copying a `lineno` attribute to end of
 every class.  If Dave had had a clue about cluegen, he could have easily
-solved this problem:
+solved this problem by just adding a minor tweak to the code generation for `__init__()`:
 
     from cluegen import Datum, all_clues, cluegen
 
@@ -214,7 +214,7 @@ Now, it works exactly as desired:
     >>>
 
 The moral of this story is that cluegen represents a different kind a
-power--the power to do what YOU want as opposed what they allow. It's
+power--the power to do what YOU want as opposed what THEY allow. It's
 all about YOU!
 
 ## Making Your Own Datum Class
@@ -348,7 +348,7 @@ enforce types if you wanted though.
 
 **Q: Does `cluegen` use any advanced magic such as metaclasses?**
 
-A: No. The `Datum` base class is plain Python class.  It defines an
+A: No. The `Datum` base class is a plain Python class.  It defines an
 `__init_subclass__()` method to assist with the management of
 subclasses, but nothing other than the standard special methods
 such as `__init__()`, `__repr__()`, `__iter__()`, and `__eq__()` are
@@ -368,7 +368,7 @@ A: What new features?  The best new features are no new features.
 
 A: You should pronounce it as "kludg-in" as in "runnin" or "trippin".
 So, if someone asks "what are you doing?", you don't say "I'm using
-cluegen."  No, you'd say "I'm cluegin up some classes."  The latter is
+cluegen."  No, you'd say "I'm kludgin up some classes."  The latter is
 more accurate as it describes both the tool and the thing that you're
 actually doing.  Accuracy matters.
 

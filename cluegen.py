@@ -7,7 +7,7 @@
 # Author: David Beazley (@dabeaz). 
 #         http://www.dabeaz.com
 #
-# Copyright (C) 2018-2019.
+# Copyright (C) 2018-2020.
 #
 # Permission is granted to use, copy, and modify this code in any
 # manner as long as this copyright message and disclaimer remain in
