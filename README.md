@@ -54,7 +54,7 @@ Yes. Yes, you could do that if you wanted your class to be slow to
 import, wrapped up by more than 1000 lines of tangled decorator magic,
 and inflexible. Or you could use cluegen! Cluegen is tiny, extensible,
 provides the same notational convenience, and results in classes that
-import about 15x faster (see the file `perf.py` for a benchmark).
+import about 20x faster (see the file `perf.py` for a benchmark).
 
 Under the hood, `cluegen` works by dynamically creating code for
 methods such as `__init__()` and `__repr__()`.  This code looks
