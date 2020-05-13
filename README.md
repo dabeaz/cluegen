@@ -126,7 +126,7 @@ can understand, modify, and play around with.
 ## A True Story
 
 Once, there was this developer. For the sake of this story, let's call
-him "Dave."  As Dave was want to do, he liked to write compilers.  A
+him "Dave."  As Dave was wont to do, he liked to write compilers.  A
 compiler is a natural place to use something fancy like a
 dataclass--especially for all of the tree structures.  So, Dave did just that:
 
