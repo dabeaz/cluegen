@@ -3,16 +3,19 @@
 Cluegen is a library that allows you to define data classes using
 Python type clues. Here's an example of how you use it:
 
+```python
     from cluegen import Datum
 
     class Coordinates(Datum):
         x: int
         y: int
+```
 
 The resulting class works in a well civilised way, providing the
 usual `__init__()` and `__repr__()` methods that you'd normally have
 to type out by hand:
 
+```python
     >>> a = Coordinates(2, 3)
     >>> a
     Coordinates(x=2, y=3)
@@ -21,10 +24,12 @@ to type out by hand:
     >>> a.y
     3
     >>> 
+```
 
 Inheritance works as well--if you add new attributes in a subclass they 
 get added to the already existing attributes.  For example:
 
+```python
     class Coordinates3(Coordinates):
         z : int
 
@@ -32,6 +37,7 @@ get added to the already existing attributes.  For example:
     >>> c
     Coordinates3(x=1, y=2, z=3)
     >>> 
+```
 
 It's easy!
 
@@ -43,12 +49,14 @@ Othe.rs migh.t help.fully sugg.est usag.e of the attr.s libr.ary.
 And they might have a point.  I mean, sure, you could write your class
 like this:
 
+```python
     from dataclasses import dataclass
 
     @dataclass
     class Coordinates:
         x: int
         y: int
+```
 
 Yes. Yes, you could do that if you wanted your class to be slow to
 import, wrapped up by more than 1000 lines of tangled decorator magic,
@@ -74,6 +82,7 @@ features, it's still faster than dataclasses. Phfft!
 you wanted to add your own custom code generation method to the
 `Datum` class.  Here's an example of how you could do that:
 
+```python
     from cluegen import Datum, cluegen, all_clues
 
     class Mytum(Datum):
@@ -88,13 +97,16 @@ you wanted to add your own custom code generation method to the
     class Point(Mytum):
         x: int
         y: int
+```
 
 Now, a test:
 
+```python
     >>> p = Point(2,3)
     >>> p.as_dict()
     { 'x': 2, 'y': 3 }
     >>>
+```
 
 In the above example, the decorated `as_dict()` method is presented
 the class.  In this case, `cls` would be `Point`. The `all_clues()`
@@ -118,6 +130,7 @@ him "Dave."  As Dave was want to do, he liked to write compilers.  A
 compiler is a natural place to use something fancy like a
 dataclass--especially for all of the tree structures.  So, Dave did just that:
 
+```python
     from dataclasses import dataclass
 
     @dataclass
@@ -153,14 +166,17 @@ dataclass--especially for all of the tree structures.  So, Dave did just that:
 
     # Example
     node = PrintStatement(BinOp('+', Integer(3), BinOp('*', Integer(4), Integer(5))))
+```
 
 This all worked great--better than expected in fact.  However, one day, Dave thought it would
 be useful to add an optional line number attribute to all of the nodes.  Naturally, this
 seemed like something that could be easily done on the base class:
 
+```python
     @dataclass
     class Node:
         lineno:int = None
+```
 
 Dave thought wrong! Dataclasses explode in a fireball if you do this.
 No, not optional attributes.  Not, base classes. Alas, the only
@@ -168,6 +184,7 @@ solution seemed to involve copying a `lineno` attribute to end of
 every class.  If Dave had had a clue about cluegen, he could have easily
 solved this problem by just adding a minor tweak to the code generation for `__init__()`:
 
+```python
     from cluegen import Datum, all_clues, cluegen
 
     class Nodum(Datum):
@@ -202,9 +219,11 @@ solved this problem by just adding a minor tweak to the code generation for `__i
 
     class PrintStatement(Statement):
         value: Expression
+```
 
 Now, it works exactly as desired:
 
+```python
     >>> a = Integer(23)
     >>> b = Integer(23, lineno=123)
     >>> b.value
@@ -212,6 +231,7 @@ Now, it works exactly as desired:
     >>> b.lineno
     123
     >>>
+```
 
 The moral of this story is that cluegen represents a different kind a
 power--the power to do what YOU want as opposed what THEY allow. It's
@@ -225,6 +245,7 @@ completely different direction.   For example, suppose that you
 wanted to abandon type hints and generate code based on `__slots__`
 instead.  Here's an example of how you could do it:
 
+```python
     from cluegen import DatumBase, cluegen
 
     def all_slots(cls):
@@ -249,10 +270,12 @@ instead.  Here's an example of how you could do it:
                     f'    return f"{cls.__name__}(' + 
                     ','.join('%s={self.%s!r}' % (name, name) for name in slots) + ')"'
                     )
+```
 
 Some of the string formatting might take a bit of pondering.  However, here is an
 example of how you'd use `Slotum`:
 
+```python
     >>> class Point(Slotum):
     ...     __slots__ = ('x', 'y')
     ... 
@@ -266,7 +289,7 @@ example of how you'd use `Slotum`:
     >>> p3
     Point3(x=2,y=3,z=4)
     >>> 
-
+```
 
 ## Theory of Operation
 
@@ -279,44 +302,53 @@ is an example of the machinery at work.
 
 First, define a class:
 
+```python
     >>> class Point(Datum):
     ...     x: int
     ...     y: int
     ... 
     >>>
+```
 
 Now, look at the `__init__()` method in the class dictionary.  You'll
 see that's some kind of strange "ClueGen" instance:
 
+```python
     >>> Point.__dict__['__init__']
     <__main__.ClueGen___init__ object at 0x102ec1240>
     >>> 
+```
 
 This object represents the "ungenerated" method.  If you touch the
 `__init__` attribute on the class in any way, you'll see the Cluegen
 object disappear and be replaced by a proper function:
 
+```python
     >>> Point.__init__
     <function __init__ at 0x102e208c8>
     >>> Point.__dict__['__init__']
     <function __init__ at 0x102e208c8>
     >>> 
+```
 
 This is the basic idea--code generation on first access to an
 attribute. Inheritance adds an extra wrinkle into the equation.
 Suppose you define a subclass:
 
+```python
     >>> class Point3(Point):
     ...     z: int
     ... 
     >>> Point3.__dict__['__init__']
     <__main__.ClueGen___init__ object at 0x102ec1240>
     >>> 
+```
 
 Here, you'll see the "ClueGen" object make a return to the class dictionary.
 Again, it gets replaced when it's first accessed.  Here's what happens
 at a low level when you make an instance:
 
+```python
     >>> i = Point3.__dict__['__init__']
     >>> i.__get__(None, Point3)
     <function __init__ at 0x102e20950>
@@ -326,6 +358,7 @@ at a low level when you make an instance:
     >>> p
     Point3(x=1, y=2, z=3)
     >>> 
+```
 
 For more reading, look for information on Python's "Descriptor Protocol."
 This is the same machinery that makes properties, classmethods, and other
