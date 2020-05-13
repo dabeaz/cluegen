@@ -372,7 +372,7 @@ cluegen."  No, you'd say "I'm kludgin up some classes."  The latter is
 more accurate as it describes both the tool and the thing that you're
 actually doing.  Accuracy matters.
 
-**Q: How do your pronounce and use `cluegen` while live-streaming?**
+**Q: How do you pronounce and use `cluegen` while live-streaming?**
 
 A: "Oh. Oh. I'm totally kludgin it! Yes! YES! YES!!! OH! MY! GOD!!!!!"
 
