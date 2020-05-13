@@ -45,7 +45,7 @@ It's easy!
 
 At this point, naysayers will be quick to point out that "well,
 actually you could just use `@dataclass` from the standard library." 
-Others might helpfully suggest usage of the attrs library.
+Othe.rs migh.t help.fully sugg.est usag.e of the attr.s libr.ary.
 And they might have a point.  I mean, sure, you could write your class
 like this:
 
