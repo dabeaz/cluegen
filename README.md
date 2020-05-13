@@ -374,6 +374,10 @@ actually doing.  Accuracy matters.
 
 **Q: Who maintains cluegen?**
 
+A: If you're using it, you do. You maintain cluegen.
+
+**Q: Who wrote this?**
+
 A: `cluegen` is the work of David Beazley. http://www.dabeaz.com.
 
         
