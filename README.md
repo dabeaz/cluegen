@@ -237,7 +237,25 @@ The moral of this story is that cluegen represents a different kind a
 power--the power to do what YOU want as opposed what THEY allow. It's
 all about YOU!
 
-## Making Your Own Datum Class
+## On a Serious Note
+
+On the subject of you, the problem of generating "boilerplate code"
+such as `__init__()` and `__repr__()` methods is something that
+commonly arises in practice.  In solving that problem you can either
+learn to use a tool and accept its limitations and complexities.  Or
+you can learn to use an approach.  `cluegen` is very much about the
+latter. The whole basic "idea" embodied by `cluegen` is implemented in
+about 20 lines of code (the `@cluegen` decorator).  The rest of it is
+really just an example of that one idea put into practice.
+
+In the big picture, learning an "approach" is a much more powerful
+concept. It's much more flexible and you can custom tailor it to
+exactly what you need.  Tools, on the other hand, add dependencies to
+your project. They also sprout complexity as more and more features
+get added to accommodate every possible use-case that anyone would
+ever want to do with the tool.  You don't need that. 
+
+## Makin Your Own Datum Class
 
 The provided `Datum` class generates code for a common set of default
 methods.  You really don't need to use this if you want to go in a
