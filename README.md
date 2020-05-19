@@ -195,9 +195,11 @@ class Nodum(Datum):
         args = ', '.join(f'{name}={getattr(cls,name)!r}'
                          if hasattr(cls, name) and not isinstance(getattr(cls, name), types.MemberDescriptorType) else name
                          for name in clues)
+        if args:
+            args += ','
         body = '\n'.join(f'    self.{name} = {name}' for name in clues)
         body += '\n    self.lineno = lineno'   
-        return f'def __init__(self, {args}, *, lineno=None):\n{body}\n'
+        return f'def __init__(self, {args} *, lineno=None):\n{body}\n'
 
 class Expression(Nodum):
     pass
