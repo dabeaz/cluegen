@@ -40,6 +40,12 @@ def all_slots(cls):
 
 class Slotum(DatumBase):
     __slots__ = ()
+
+    @classmethod
+    def __init_subclass__(cls):
+        super().__init_subclass__()
+        cls.__match_args__ = tuple(all_slots(cls))
+    
     @cluegen
     def __init__(cls):
         slots = all_slots(cls)
@@ -57,6 +63,7 @@ class Slotum(DatumBase):
 
 class Fraction(Slotum):
     __slots__ = ('numer', 'denom')
+
 
 
                    

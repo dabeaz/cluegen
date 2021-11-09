@@ -39,6 +39,17 @@ Coordinates3(x=1, y=2, z=3)
 >>> 
 ```
 
+If you're using Python-3.10, you can also use the new `match` statement.
+
+```python
+def magnitude(c):
+    match c:
+        case Coordinates(x, y):
+	     return math.sqrt(x*x + y*y)
+        case Coordinates3(x, y, z):
+	     return math.sqrt(x*x + y*y + z*z)
+```
+
 It's easy!
 
 ## Wait, hasn't this already been invented?
@@ -276,6 +287,11 @@ def all_slots(cls):
 
 class Slotum(DatumBase):
     __slots__ = ()
+    @classmethod
+    def __init_subclass__(cls):
+        super().__init_subclass__()
+        cls.__match_args__ = tuple(all_slots(cls))
+	
     @cluegen
     def __init__(cls):
         slots = all_slots(cls)
@@ -389,7 +405,7 @@ features of the object system work.
 **Q: What methods does `cluegen` generate?**
 
 A: By default it generates `__init__()`, `__repr__()`, `__iter__()`,
-and `__eq__()` methods.
+and `__eq__()` methods.  `__match_args__` is also defined to assist with pattern matching.
 
 **Q: Does `cluegen` enforce the specified types?**
 

@@ -7,7 +7,7 @@
 # Author: David Beazley (@dabeaz). 
 #         http://www.dabeaz.com
 #
-# Copyright (C) 2018-2020.
+# Copyright (C) 2018-2021.
 #
 # Permission is granted to use, copy, and modify this code in any
 # manner as long as this copyright message and disclaimer remain in
@@ -62,6 +62,11 @@ class DatumBase:
 
 class Datum(DatumBase):
     __slots__ = ()
+    @classmethod
+    def __init_subclass__(cls):
+        super().__init_subclass__()
+        cls.__match_args__ = tuple(all_clues(cls))
+    
     @cluegen
     def __init__(cls):
         clues = all_clues(cls)

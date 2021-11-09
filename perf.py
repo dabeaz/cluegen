@@ -26,6 +26,15 @@ namedtuple_template = '''
 C{n} = namedtuple('C{n}', ['a', 'b', 'c', 'd', 'e'])
 '''
 
+namedtuple_template = '''
+class C{n}(NamedTuple):
+    a : int
+    b : int
+    c : int
+    d : int
+    e : int
+'''
+
 dataclass_template = '''
 @dataclass
 class C{n}:
@@ -87,6 +96,7 @@ def main(reps):
     run_test('standard classes', reps)
 
     write_perftemp(100, namedtuple_template, 'from collections import namedtuple\n')
+    write_perftemp(100, namedtuple_template, 'from typing import NamedTuple\n')
     run_test('namedtuple', reps)
 
     write_perftemp(100, dataclass_template, 'from dataclasses import dataclass\n')
