@@ -44,10 +44,11 @@ If you're using Python-3.10, you can also use the new `match` statement.
 ```python
 def magnitude(c):
     match c:
-        case Coordinates(x, y):
-	     return math.sqrt(x*x + y*y)
         case Coordinates3(x, y, z):
 	     return math.sqrt(x*x + y*y + z*z)
+    
+        case Coordinates(x, y):
+	     return math.sqrt(x*x + y*y)
 ```
 
 It's easy!
